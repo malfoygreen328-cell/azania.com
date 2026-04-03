@@ -15,6 +15,16 @@
     {
       "route": "/cart",
       "rewrite": "/cart.html"
+    },
+
+    // ✅ ADD THESE
+    {
+      "route": "/sitemap.xml",
+      "serve": "/sitemap.xml"
+    },
+    {
+      "route": "/sitemaps/*",
+      "serve": "/sitemaps/:*"
     }
   ],
   "navigationFallback": {
