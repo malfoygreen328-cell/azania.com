@@ -77,6 +77,11 @@ body {
   border-radius: 4px;
   cursor: pointer;
 }
+
+#checkout-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
 </style>
 </head>
 
@@ -94,6 +99,11 @@ body {
 </div>
 
 <script>
+
+/* =============================
+CART STORAGE
+============================= */
+
 function getCart() {
   return JSON.parse(localStorage.getItem("cart")) || [];
 }
@@ -102,10 +112,15 @@ function saveCart(cart) {
   localStorage.setItem("cart", JSON.stringify(cart));
 }
 
+/* =============================
+RENDER CART
+============================= */
+
 function renderCart() {
   const cart = getCart();
   const cartContainer = document.getElementById("cart-items");
   const totalElement = document.getElementById("cart-total");
+  const checkoutBtn = document.getElementById("checkout-btn");
 
   cartContainer.innerHTML = "";
   let total = 0;
@@ -113,10 +128,15 @@ function renderCart() {
   if (cart.length === 0) {
     cartContainer.innerHTML = "<p>Your cart is empty.</p>";
     totalElement.textContent = "0.00";
+    checkoutBtn.disabled = true;
     return;
   }
 
+  checkoutBtn.disabled = false;
+
   cart.forEach((item, index) => {
+    if (!item || !item.price || !item.quantity) return;
+
     total += item.price * item.quantity;
 
     const itemDiv = document.createElement("div");
@@ -146,8 +166,15 @@ function renderCart() {
   totalElement.textContent = total.toFixed(2);
 }
 
+/* =============================
+UPDATE QUANTITY
+============================= */
+
 function changeQty(index, change) {
   const cart = getCart();
+
+  if (!cart[index]) return;
+
   cart[index].quantity += change;
 
   if (cart[index].quantity < 1) {
@@ -158,23 +185,42 @@ function changeQty(index, change) {
   renderCart();
 }
 
+/* =============================
+REMOVE ITEM
+============================= */
+
 function removeItem(index) {
   const cart = getCart();
+
+  if (!cart[index]) return;
+
   cart.splice(index, 1);
+
   saveCart(cart);
   renderCart();
 }
 
+/* =============================
+CHECKOUT NAVIGATION
+============================= */
+
 document.getElementById("checkout-btn").addEventListener("click", () => {
   const cart = getCart();
+
   if (cart.length === 0) {
     alert("Your cart is empty!");
     return;
   }
-  window.location.href = "Checkout.html";
+
+  window.location.href = "checkout.html"; // lowercase fix
 });
 
+/* =============================
+INIT
+============================= */
+
 document.addEventListener("DOMContentLoaded", renderCart);
+
 </script>
 
 </body>
