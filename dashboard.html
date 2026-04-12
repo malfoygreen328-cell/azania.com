@@ -30,7 +30,16 @@ body {background:#fff; color:#111;}
 
 .logo {width:45px; cursor:pointer;}
 .hamburger {font-size:1.8rem; cursor:pointer; background:none; border:none; color:white; display:block;}
-#language-select {border-radius:5px; border:none; padding:0.3rem 0.5rem; min-width:130px;}
+
+/* ✅ FIXED: smaller language select */
+#language-select {
+    border-radius:5px;
+    border:none;
+    padding:0.25rem 0.4rem;
+    min-width:90px;
+    max-width:110px;
+    font-size:0.85rem;
+}
 
 /* Search input next to cart */
 #searchInput {padding:0.5rem; border-radius:6px; border:none; width:250px; max-width:50vw;}
@@ -65,10 +74,36 @@ main {flex:1; padding:1rem; max-width:1200px;}
 .product-price {color:#043927; font-weight:bold;}
 .add-cart-btn {margin-top:0.5rem; background:#043927; color:white; border:none; padding:0.4rem; border-radius:6px; cursor:pointer;}
 
-/* AI CHAT WIDGET */
-#ai-chat {position:fixed; bottom:20px; right:20px; width:300px; background:#043927; color:white; border:2px solid #03291c; border-radius:10px; padding:10px; z-index:2000; font-size:0.9rem;}
-#chat-messages {height:200px; overflow-y:auto; border-bottom:1px solid #03291c; margin-bottom:5px;}
-#chat-input {width:100%; padding:5px; border-radius:5px; border:none;}
+/* ✅ FIXED: smaller AI chat widget */
+#ai-chat {
+    position:fixed;
+    bottom:15px;
+    right:15px;
+    width:240px;
+    background:#043927;
+    color:white;
+    border:2px solid #03291c;
+    border-radius:10px;
+    padding:8px;
+    z-index:2000;
+    font-size:0.8rem;
+}
+
+#chat-messages {
+    height:140px;
+    overflow-y:auto;
+    border-bottom:1px solid #03291c;
+    margin-bottom:5px;
+    font-size:0.75rem;
+}
+
+#chat-input {
+    width:100%;
+    padding:4px;
+    border-radius:5px;
+    border:none;
+    font-size:0.8rem;
+}
 
 /* RESPONSIVE */
 @media screen and (max-width:900px){
@@ -78,6 +113,21 @@ main {flex:1; padding:1rem; max-width:1200px;}
     .container {flex-direction:column;}
     main {max-width:100%;}
     #searchInput {width:150px;}
+
+    /* mobile language select */
+    #language-select {
+        min-width:70px;
+        max-width:80px;
+        font-size:0.75rem;
+        padding:0.2rem 0.3rem;
+    }
+
+    /* mobile AI chat */
+    #ai-chat {
+        width:200px;
+        bottom:10px;
+        right:10px;
+    }
 }
 </style>
 </head>
@@ -88,6 +138,7 @@ main {flex:1; padding:1rem; max-width:1200px;}
 <header class="navbar">
     <div class="nav-left">
         <button class="hamburger" id="hamburger-btn">☰</button>
+
         <select id="language-select">
             <option value="en">English</option>
             <option value="zu">Zulu</option>
@@ -114,7 +165,6 @@ main {flex:1; padding:1rem; max-width:1200px;}
 <!-- LAYOUT -->
 <div class="container">
 
-    <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
         <h3 id="sidebar-title">Categories</h3>
         <a onclick="filterCategory('all')" id="cat-all">All</a>
@@ -124,7 +174,6 @@ main {flex:1; padding:1rem; max-width:1200px;}
         <a onclick="filterCategory('new')" id="cat-new">New Arrivals</a>
     </aside>
 
-    <!-- MAIN -->
     <main>
         <section class="slider">
             <div class="slides" id="slides">
@@ -140,7 +189,7 @@ main {flex:1; padding:1rem; max-width:1200px;}
     </main>
 </div>
 
-<!-- AI Chat Widget -->
+<!-- AI CHAT -->
 <div id="ai-chat">
     <div id="chat-messages"></div>
     <input id="chat-input" type="text" placeholder="Ask about products..."/>
@@ -156,13 +205,19 @@ hamburger.addEventListener('click', ()=> sidebar.classList.toggle('show'));
 let index = 0;
 const slides = document.getElementById("slides");
 const totalSlides = document.querySelectorAll(".slide").length;
+
 document.getElementById("next").onclick = ()=>{ index=(index+1)%totalSlides; updateSlider(); };
 document.getElementById("prev").onclick = ()=>{ index=(index-1+totalSlides)%totalSlides; updateSlider(); };
-function updateSlider(){ slides.style.transform=`translateX(-${document.querySelector(".slide").clientWidth*index}px)`; }
+
+function updateSlider(){
+    slides.style.transform=`translateX(-${document.querySelector(".slide").clientWidth*index}px)`;
+}
+
 setInterval(()=>{ index=(index+1)%totalSlides; updateSlider(); }, 4000);
 
 // Products
 let allProducts = [];
+
 async function loadProducts(){
     const container = document.getElementById("products");
     container.innerHTML="Loading products...";
@@ -171,11 +226,12 @@ async function loadProducts(){
         const data = await res.json();
         allProducts = data;
         renderProducts(allProducts);
-    }catch(err){ container.innerHTML="Failed to load products."; console.error(err);}
+    }catch(err){
+        container.innerHTML="Failed to load products.";
+    }
 }
+
 function renderProducts(products){
-    const lang = document.getElementById("language-select").value;
-    const t = translations[lang];
     const container=document.getElementById("products");
     container.innerHTML="";
     products.forEach(p=>{
@@ -184,7 +240,7 @@ function renderProducts(products){
             <img src="${p.image||'A.jpg'}">
             <div class="product-title">${p.name}</div>
             <div class="product-price">R${p.price}</div>
-            <button class="add-cart-btn">${t.addToCart}</button>
+            <button class="add-cart-btn">Add to Cart</button>
         </div>`;
     });
 }
@@ -202,34 +258,6 @@ function filterCategory(cat){
     if(window.innerWidth<=900) sidebar.classList.remove('show');
 }
 
-// TRANSLATIONS
-const translations = {
-    en:{search:"Search products...", categories:"Categories", all:"All", clothing:"Clothing", shoes:"Shoes", accessories:"Accessories", newArrivals:"New Arrivals", addToCart:"Add to Cart"},
-    zu:{search:"Sesha imikhiqizo...", categories:"Izigaba", all:"Konke", clothing:"Izingubo", shoes:"Izicathulo", accessories:"Izinsiza", newArrivals:"Okusha", addToCart:"Faka ekalishini"},
-    xh:{search:"Khangela iimveliso...", categories:"Iindidi", all:"Zonke", clothing:"Iimpahla", shoes:"Izicathulo", accessories:"Izixhobo", newArrivals:"Ezintsha", addToCart:"Faka kwiCart"},
-    tn:{search:"Batla dithoto...", categories:"Mekgwa", all:"Tsona", clothing:"Dithoto", shoes:"Dihlopha", accessories:"Dithoto tse dingwe", newArrivals:"Dintshwa", addToCart:"Oketsa mo Kariting"},
-    ve:{search:"Khadza zwavhuḓi...", categories:"Madiru", all:"Zwoṱhe", clothing:"Mivhili", shoes:"Zwihulo", accessories:"Zwibveledzwa", newArrivals:"Zwinzhi zwashu", addToCart:"Iisa kha Cart"},
-    nr:{search:"Funani imikhiqizo...", categories:"Izigaba", all:"Konke", clothing:"Izingubo", shoes:"Izicathulo", accessories:"Izinsiza", newArrivals:"Okusha", addToCart:"Faka ekalishini"},
-    st:{search:"Batla dithoto...", categories:"Dikgato", all:"Tsona", clothing:"Dithoto", shoes:"Dihlopha", accessories:"Dithoto tse dingwe", newArrivals:"Dintshwa", addToCart:"Oketsa mo Kariting"},
-    nso:{search:"Batla dithoto...", categories:"Mehleng", all:"Tsona", clothing:"Dithoto", shoes:"Dihlopha", accessories:"Dithoto tse dingwe", newArrivals:"Dintshwa", addToCart:"Oketsa mo Kariting"}
-};
-function loadLanguage(lang){
-    const t = translations[lang] || translations['en'];
-    document.getElementById("searchInput").placeholder = t.search;
-    document.getElementById("sidebar-title").textContent = t.categories;
-    document.getElementById("cat-all").textContent = t.all;
-    document.getElementById("cat-clothing").textContent = t.clothing;
-    document.getElementById("cat-shoes").textContent = t.shoes;
-    document.getElementById("cat-accessories").textContent = t.accessories;
-    document.getElementById("cat-new").textContent = t.newArrivals;
-    document.querySelectorAll(".add-cart-btn").forEach(btn=> btn.textContent = t.addToCart);
-}
-document.getElementById("language-select").onchange = e=>{
-    const lang = e.target.value;
-    loadLanguage(lang);
-    localStorage.setItem("azaniaLang", lang);
-};
-
 // AI CHAT
 const chatInput = document.getElementById('chat-input');
 const chatMessages = document.getElementById('chat-messages');
@@ -238,36 +266,28 @@ chatInput.addEventListener('keypress', async e=>{
     if(e.key==='Enter'){
         const userMessage = chatInput.value.trim();
         if(!userMessage) return;
+
         chatMessages.innerHTML += `<div><strong>You:</strong> ${userMessage}</div>`;
         chatInput.value='';
-
-        const lang = document.getElementById("language-select").value;
 
         try{
             const res = await fetch('http://localhost:5000/api/v1/ai', {
                 method:'POST',
                 headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({
-                    message: userMessage,
-                    language: lang,
-                    products: allProducts
-                })
+                body: JSON.stringify({ message: userMessage, products: allProducts })
             });
+
             const data = await res.json();
             chatMessages.innerHTML += `<div><strong>AI:</strong> ${data.reply}</div>`;
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }catch(err){
-            console.error(err);
-            chatMessages.innerHTML += `<div><strong>AI:</strong> Sorry, something went wrong.</div>`;
+            chatMessages.innerHTML += `<div><strong>AI:</strong> Error.</div>`;
         }
     }
 });
 
-// Load saved language and products
+// INIT
 window.onload = ()=>{
-    const savedLang = localStorage.getItem("azaniaLang") || "en";
-    document.getElementById("language-select").value = savedLang;
-    loadLanguage(savedLang);
     loadProducts();
 };
 </script>
